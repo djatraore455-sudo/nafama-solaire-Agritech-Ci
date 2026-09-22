@@ -1,0 +1,8 @@
+{
+  "name": "NAFAMA SOLAIRE - AgriTech & Énergie Propre CI",
+  "description": "Supervision IoT des pompes solaires, alertes SMS, vente en circuit court et paiements Mobile Money en Côte d'Ivoire.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
