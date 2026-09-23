@@ -1,0 +1,14 @@
+{
+  "appId": "ci.nafamasolaire.app",
+  "appName": "NAFAMA SOLAIRE",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "backgroundColor": "#faf8ff"
+  }
+}

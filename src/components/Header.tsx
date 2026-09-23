@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScreenId } from '../types';
+import { ScreenId, UserRole } from '../types';
 import { PWAInstallButton } from './PWAInstallButton';
 
 interface HeaderProps {
@@ -8,6 +8,7 @@ interface HeaderProps {
   onOpenVoice: () => void;
   isVoiceActive?: boolean;
   userAvatar?: string;
+  currentUserRole?: UserRole;
 }
 
 const SCREEN_TITLES: Record<ScreenId, { title: string; subtitle: string }> = {
@@ -24,7 +25,8 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigate,
   onOpenVoice,
   isVoiceActive = false,
-  userAvatar
+  userAvatar,
+  currentUserRole = 'producer'
 }) => {
   if (currentScreen === 'auth') {
     return null; // Auth screen has its own native top banner with local language dropdown and CI network indicator
@@ -32,6 +34,14 @@ export const Header: React.FC<HeaderProps> = ({
 
   const { title, subtitle } = SCREEN_TITLES[currentScreen];
   const isPaiement = currentScreen === 'paiement';
+
+  const roleLabels: Record<UserRole, { label: string; bg: string; text: string }> = {
+    producer: { label: 'Prod', bg: 'bg-[#a6f4b5]', text: 'text-[#00210b]' },
+    technician: { label: 'Tech', bg: 'bg-[#dae2fd]', text: 'text-[#001d36]' },
+    buyer: { label: 'Achat', bg: 'bg-[#ffddb8]', text: 'text-[#2a1700]' },
+    admin: { label: 'Admin', bg: 'bg-[#ffdad6]', text: 'text-[#ba1a1a]' }
+  };
+  const roleBadge = roleLabels[currentUserRole] || roleLabels.producer;
 
   return (
     <header className="sticky top-0 w-full z-40 bg-[#faf8ff]/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] border-b border-[#eaedff]">
@@ -98,18 +108,23 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="material-symbols-outlined text-[20px]">mic</span>
           </button>
 
-          {/* User Account / Admin Avatar */}
+          {/* User Account / Admin Avatar with Role Badge */}
           <button
             onClick={() => onNavigate('auth')}
             aria-label="Mon Profil Agricole"
-            className="w-8 h-8 rounded-full bg-[#004c22] flex items-center justify-center text-white active:scale-95 transition-transform shadow-xs overflow-hidden"
-            title="Mon Profil / Inscription"
+            className="relative flex items-center gap-1.5 pl-1.5 pr-2 py-1 rounded-full bg-[#f2f3ff] border border-[#eaedff] active:scale-95 transition-transform"
+            title={`Mon Profil (${currentUserRole})`}
           >
-            {userAvatar ? (
-              <img src={userAvatar} alt="Profil" className="w-full h-full object-cover" />
-            ) : (
-              <span className="material-symbols-outlined text-[18px]">person</span>
-            )}
+            <div className="w-7 h-7 rounded-full bg-[#004c22] flex items-center justify-center text-white overflow-hidden shrink-0">
+              {userAvatar ? (
+                <img src={userAvatar} alt="Profil" className="w-full h-full object-cover" />
+              ) : (
+                <span className="material-symbols-outlined text-[16px]">person</span>
+              )}
+            </div>
+            <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full ${roleBadge.bg} ${roleBadge.text}`}>
+              {roleBadge.label}
+            </span>
           </button>
         </div>
       </div>

@@ -1,0 +1,91 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Profil de l'agriculteur ou coopérateur NAFAMA SOLAIRE",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "fullName": { "type": "string" },
+        "phoneNumber": { "type": "string" },
+        "cooperative": { "type": "string" },
+        "village": { "type": "string" },
+        "role": { "type": "string", "enum": ["producer", "technician", "buyer", "admin"] },
+        "preferredLang": { "type": "string", "enum": ["fr", "dioula", "senoufo"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "fullName", "phoneNumber", "role", "preferredLang"]
+    },
+    "SolarDevice": {
+      "title": "SolarDevice",
+      "description": "Équipement de pompage et générateur solaire IoT",
+      "type": "object",
+      "properties": {
+        "deviceId": { "type": "string" },
+        "locationName": { "type": "string" },
+        "pumpCapacityKw": { "type": "number" },
+        "pumpActive": { "type": "boolean" },
+        "solarProductionKw": { "type": "number" },
+        "batteryPercent": { "type": "number" },
+        "pumpFlowM3h": { "type": "number" },
+        "pumpPressureBar": { "type": "number" },
+        "soilHumidityPercent": { "type": "number" },
+        "tankRemainingLiters": { "type": "number" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["deviceId", "pumpActive", "updatedAt"]
+    },
+    "MarketProduct": {
+      "title": "MarketProduct",
+      "description": "Offre de récolte vivrière sur la bourse NAFAMA",
+      "type": "object",
+      "properties": {
+        "productId": { "type": "string" },
+        "producerName": { "type": "string" },
+        "producerPhone": { "type": "string" },
+        "location": { "type": "string" },
+        "cropName": { "type": "string" },
+        "variety": { "type": "string" },
+        "availableKg": { "type": "number" },
+        "pricePerKgFcfa": { "type": "number" },
+        "harvestDate": { "type": "string" },
+        "certifiedBioSolaire": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["productId", "producerName", "cropName", "availableKg", "pricePerKgFcfa"]
+    },
+    "SavingsRecord": {
+      "title": "SavingsRecord",
+      "description": "Historique mensuel des économies réalisées vs diesel en FCFA",
+      "type": "object",
+      "properties": {
+        "month": { "type": "string" },
+        "dieselLitersSaved": { "type": "number" },
+        "fuelSavingsFcfa": { "type": "number" },
+        "maintenanceSavingsFcfa": { "type": "number" },
+        "totalSavingsFcfa": { "type": "number" },
+        "co2AvoidedKg": { "type": "number" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["month", "totalSavingsFcfa", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "UserProfile",
+      "description": "Profils des membres NAFAMA"
+    },
+    "/solar_devices/{deviceId}": {
+      "schema": "SolarDevice",
+      "description": "État télémétrique des stations solaires"
+    },
+    "/market_products/{productId}": {
+      "schema": "MarketProduct",
+      "description": "Catalogue des récoltes maraîchères"
+    },
+    "/savings_records/{month}": {
+      "schema": "SavingsRecord",
+      "description": "Bilan financier mensuel"
+    }
+  }
+}

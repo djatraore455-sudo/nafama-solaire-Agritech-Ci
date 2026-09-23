@@ -84,14 +84,18 @@ export interface MarketProduct {
   uploadDate?: string;
 }
 
+export type UserRole = 'producer' | 'technician' | 'buyer' | 'admin';
+
 export interface UserAccount {
   nom: string;
   prenom: string;
   phone: string;
   location: string;
+  role: UserRole;
   pin: string;
   isLoggedIn: boolean;
   avatar?: string;
+  email?: string;
 }
 
 export interface SolarProductionHistoryPoint {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ScreenId, LanguageCode, CartItem, UserAccount } from './types';
 import { INITIAL_TELEMETRY, INITIAL_CART_ITEMS } from './data/mockData';
 import { Header } from './components/Header';
@@ -12,6 +12,11 @@ import { ScreenMarche } from './components/ScreenMarche';
 import { VoiceAssistantModal } from './components/VoiceAssistantModal';
 import { SimulatedSmsToast, SmsToastData } from './components/SimulatedSmsToast';
 import { OfflineIndicator } from './components/OfflineIndicator';
+import {
+  subscribeToSolarDevice,
+  updatePumpStateInFirestore,
+  saveUserProfileToFirestore
+} from './firebase';
 
 export default function App() {
   // Navigation Flow: Inscription vient avant Solaire IoT
@@ -27,6 +32,7 @@ export default function App() {
     prenom: 'Konan',
     phone: '07 58 42 19 80',
     location: 'Korhogo',
+    role: 'producer',
     pin: '2025',
     isLoggedIn: true
   });
@@ -34,6 +40,21 @@ export default function App() {
   // Interactive Voice & SMS Toast
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
   const [activeToast, setActiveToast] = useState<SmsToastData | null>(null);
+
+  // Real-time synchronization with Firebase Firestore
+  useEffect(() => {
+    const unsubscribe = subscribeToSolarDevice(
+      'poro_pump_01',
+      (updatedData) => {
+        setTelemetry((prev) => ({ ...prev, ...updatedData }));
+      },
+      telemetry
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   const showSmsToast = (message: string, sender: string = 'NAFAMA SOLAIRE') => {
     setActiveToast({
@@ -48,7 +69,7 @@ export default function App() {
   const handleTogglePump = () => {
     setTelemetry((prev) => {
       const nextActive = !prev.pumpActive;
-      return {
+      const nextTelemetry = {
         ...prev,
         pumpActive: nextActive,
         pumpFlowM3h: nextActive ? 14.2 : 0.0,
@@ -56,6 +77,13 @@ export default function App() {
         pumpPressureBar: nextActive ? 3.4 : 0.0,
         soilHumidityPercent: nextActive ? Math.min(100, prev.soilHumidityPercent + 2) : prev.soilHumidityPercent
       };
+
+      // Asynchronously synchronize with Firestore
+      updatePumpStateInFirestore('poro_pump_01', nextActive, nextTelemetry).catch((err) => {
+        console.warn('Firestore pump sync note:', err);
+      });
+
+      return nextTelemetry;
     });
   };
 
@@ -186,6 +214,7 @@ export default function App() {
           onNavigate={(screen) => setCurrentScreen(screen)}
           onOpenVoice={() => setIsVoiceModalOpen(true)}
           userAvatar={currentUser.avatar}
+          currentUserRole={currentUser.role}
         />
 
         {/* Screen Content */}
@@ -204,7 +233,12 @@ export default function App() {
 
           {currentScreen === 'auth' && (
             <ScreenAuth
-              onSuccess={(user) => setCurrentUser(user)}
+              onSuccess={(user) => {
+                setCurrentUser(user);
+                saveUserProfileToFirestore(user).catch((err) => {
+                  console.warn('Firestore user profile sync note:', err);
+                });
+              }}
               onNavigate={(s) => setCurrentScreen(s)}
               onTriggerSmsNotification={(msg) => showSmsToast(msg)}
               currentLang={currentLang}
@@ -234,6 +268,10 @@ export default function App() {
             <ScreenAdmin
               onNavigate={(s) => setCurrentScreen(s)}
               onTriggerSmsNotification={(msg) => showSmsToast(msg)}
+              currentUser={currentUser}
+              onElevateToAdmin={() => {
+                setCurrentUser((prev) => ({ ...prev, role: 'admin' }));
+              }}
             />
           )}
 
@@ -251,6 +289,7 @@ export default function App() {
           currentScreen={currentScreen}
           onNavigate={(screen) => setCurrentScreen(screen)}
           cartCount={totalCartCount}
+          currentUserRole={currentUser.role}
         />
       </div>
 

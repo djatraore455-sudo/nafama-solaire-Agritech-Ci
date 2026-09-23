@@ -164,11 +164,18 @@ export const INITIAL_SMS_SETTINGS: SmsSetting[] = [
 
 export const RECIPIENT_NUMBERS = [
   {
+    id: 'rec-advisor',
+    phone: '+225 64 64 84 39 12',
+    name: 'Conseiller Agricole NAFAMA (Direct)',
+    operator: 'Orange CI',
+    badge: 'Conseiller'
+  },
+  {
     id: 'rec-1',
     phone: '+225 07 58 42 19 80',
     name: 'Konan Kouassi (Propriétaire)',
     operator: 'Orange CI',
-    badge: 'Principal'
+    badge: 'Exploitant'
   },
   {
     id: 'rec-2',

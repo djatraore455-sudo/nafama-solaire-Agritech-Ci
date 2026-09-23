@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (request.auth.token.role == 'admin' ||
+         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'));
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if isAuthenticated() || isOwner(userId) || isAdmin();
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // Admin audit logs & national supervision
+    match /admin_audit/{auditId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Solar Devices IoT telemetry & pump controls
+    match /solar_devices/{deviceId} {
+      allow read: if true;
+      allow create, update: if true;
+    }
+
+    // Market products (Agricultural exchange)
+    match /market_products/{productId} {
+      allow read: if true;
+      allow create, update: if true;
+      allow delete: if isAuthenticated();
+    }
+
+    // Savings records (Financial analytics)
+    match /savings_records/{month} {
+      allow read: if true;
+      allow create, update: if true;
+    }
+  }
+}

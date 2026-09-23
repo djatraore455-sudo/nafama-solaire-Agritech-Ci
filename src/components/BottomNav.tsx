@@ -1,25 +1,29 @@
 import React from 'react';
-import { ScreenId } from '../types';
+import { ScreenId, UserRole } from '../types';
 
 interface BottomNavProps {
   currentScreen: ScreenId;
   onNavigate: (screen: ScreenId) => void;
   cartCount: number;
+  currentUserRole?: UserRole;
 }
 
 export const BottomNav: React.FC<BottomNavProps> = ({
   currentScreen,
   onNavigate,
-  cartCount
+  cartCount,
+  currentUserRole
 }) => {
-  const navItems: { id: ScreenId; label: string; icon: string; badge?: number }[] = [
+  const allNavItems: { id: ScreenId; label: string; icon: string; badge?: number; adminOnly?: boolean }[] = [
     { id: 'auth', label: 'Compte', icon: 'account_circle' },
     { id: 'solaire', label: 'Solaire', icon: 'solar_power' },
     { id: 'formules', label: 'Formules', icon: 'sms' },
     { id: 'marche', label: 'Marché', icon: 'storefront' },
     { id: 'paiement', label: 'Panier', icon: 'shopping_bag', badge: cartCount },
-    { id: 'admin', label: 'Admin', icon: 'manage_accounts' }
+    { id: 'admin', label: 'Admin', icon: 'manage_accounts', adminOnly: true }
   ];
+
+  const navItems = allNavItems.filter((item) => !item.adminOnly || currentUserRole === 'admin');
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-[#eaedff] shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">

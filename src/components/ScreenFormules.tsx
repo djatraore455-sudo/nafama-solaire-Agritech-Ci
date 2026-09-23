@@ -635,27 +635,38 @@ export const ScreenFormules: React.FC<ScreenFormulesProps> = ({
         </div>
       </section>
 
-      {/* Support Vocal Localisé */}
-      <section className="bg-[#004c22] text-white rounded-2xl p-4 shadow-md flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#166534] flex items-center justify-center flex-shrink-0">
-            <span className="material-symbols-outlined text-[22px] text-[#93e0a2]">support_agent</span>
-          </div>
-          <div>
-            <div className="text-xs font-bold">Besoin d'aide pour choisir ?</div>
-            <div className="text-[11px] text-[#a6f4b5] leading-tight">
-              Écoutez les explications en Baoulé ou Dioula
+      {/* Support Vocal Localisé & Appel Conseiller */}
+      <section className="bg-[#004c22] text-white rounded-2xl p-4 shadow-md flex flex-col gap-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-[#166534] flex items-center justify-center flex-shrink-0">
+              <span className="material-symbols-outlined text-[22px] text-[#93e0a2]">support_agent</span>
+            </div>
+            <div>
+              <div className="text-xs font-bold">Besoin d'aide pour choisir ?</div>
+              <div className="text-[11px] text-[#a6f4b5] leading-tight">
+                Écoutez les explications en Baoulé ou Dioula
+              </div>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={handlePlayVocalPlanGuide}
+            className="h-9 px-3 rounded-full bg-[#fea619] text-[#684000] text-xs font-bold flex items-center gap-1 active:scale-95 transition-transform flex-shrink-0"
+          >
+            <span className="material-symbols-outlined text-[16px]">play_circle</span>
+            <span>Écouter</span>
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={handlePlayVocalPlanGuide}
-          className="h-9 px-3 rounded-full bg-[#fea619] text-[#684000] text-xs font-bold flex items-center gap-1 active:scale-95 transition-transform flex-shrink-0"
+
+        {/* Bouton Appel Direct Conseiller NAFAMA */}
+        <a
+          href="tel:+2256464843912"
+          className="w-full py-2.5 px-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white text-xs font-bold flex items-center justify-center gap-2 transition-colors"
         >
-          <span className="material-symbols-outlined text-[16px]">play_circle</span>
-          <span>Écouter</span>
-        </button>
+          <span className="material-symbols-outlined text-[18px] text-[#ffddb8]">call</span>
+          <span>Joindre le Conseiller NAFAMA : +225 64 64 84 39 12</span>
+        </a>
       </section>
 
       {/* Modal Add Recipient */}

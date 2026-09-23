@@ -31,6 +31,7 @@ export const ScreenPaiement: React.FC<ScreenPaiementProps> = ({
     prenom: 'Ibrahim',
     phone: '07 58 42 19 80',
     location: 'Korhogo',
+    role: 'producer',
     pin: '2025',
     isLoggedIn: true
   };

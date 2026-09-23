@@ -1,24 +1,120 @@
 import React, { useState } from 'react';
-import { HarvestLot, TechnicalAlert, TransactionRecord, ScreenId } from '../types';
+import { HarvestLot, TechnicalAlert, TransactionRecord, ScreenId, UserAccount } from '../types';
 import { INITIAL_HARVEST_LOTS, INITIAL_TECHNICAL_ALERTS, INITIAL_TRANSACTIONS } from '../data/mockData';
 
 interface ScreenAdminProps {
   onNavigate: (screen: ScreenId) => void;
   onTriggerSmsNotification: (message: string) => void;
+  currentUser?: UserAccount;
+  onElevateToAdmin?: () => void;
 }
 
 export const ScreenAdmin: React.FC<ScreenAdminProps> = ({
   onNavigate,
-  onTriggerSmsNotification
+  onTriggerSmsNotification,
+  currentUser,
+  onElevateToAdmin
 }) => {
   const [harvestLots, setHarvestLots] = useState<HarvestLot[]>(INITIAL_HARVEST_LOTS);
   const [techAlerts, setTechAlerts] = useState<TechnicalAlert[]>(INITIAL_TECHNICAL_ALERTS);
   const [transactions, setTransactions] = useState<TransactionRecord[]>(INITIAL_TRANSACTIONS);
 
+  // Admin access unlock form states
+  const [adminUnlockKey, setAdminUnlockKey] = useState('');
+  const [keyError, setKeyError] = useState<string | null>(null);
+
   // Modals
   const [selectedAlertForAssign, setSelectedAlertForAssign] = useState<TechnicalAlert | null>(null);
   const [technicianName, setTechnicianName] = useState('Koffi Kouamé (Base Bouaké)');
   const [reportGenerated, setReportGenerated] = useState(false);
+
+  // Access Control Guard: Only Principal Admin can view this screen
+  if (currentUser?.role !== 'admin') {
+    return (
+      <div className="flex flex-col w-full px-4 pb-24 pt-6 gap-5 max-w-md mx-auto">
+        <div className="bg-white rounded-3xl p-6 border border-[#ffdad6] shadow-sm flex flex-col items-center text-center">
+          <div className="w-16 h-16 rounded-full bg-[#ffdad6] text-[#ba1a1a] flex items-center justify-center mb-3 shadow-xs">
+            <span className="material-symbols-outlined text-[32px]">admin_panel_settings</span>
+          </div>
+
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#ba1a1a] bg-[#fff8f6] px-2.5 py-1 rounded-full border border-[#ffdad6]">
+            Accès Strictement Restreint
+          </span>
+
+          <h2 className="text-xl font-black text-[#131b2e] mt-3">
+            Espace Administrateur Principal
+          </h2>
+
+          <p className="text-xs text-[#404940] mt-2 leading-relaxed">
+            Seul l'<strong>Administrateur Principal NAFAMA</strong> est autorisé à accéder à la supervision nationale, l'arbitrage des transactions Mobile Money et l'affectation des techniciens.
+          </p>
+
+          <div className="w-full mt-4 p-3 rounded-2xl bg-[#f2f3ff] border border-[#dae2fd] text-left">
+            <div className="flex items-center gap-2 text-xs font-semibold text-[#131b2e]">
+              <span className="material-symbols-outlined text-[18px] text-[#004c22]">account_circle</span>
+              <span>Compte actuellement connecté :</span>
+            </div>
+            <p className="text-xs text-[#404940] mt-1 pl-6">
+              {currentUser?.prenom} {currentUser?.nom} • Statut : <strong className="capitalize text-[#004c22]">
+                {currentUser?.role === 'producer' ? 'Producteur Agricole' : currentUser?.role === 'technician' ? 'Technicien Maintenance' : currentUser?.role === 'buyer' ? 'Acheteur' : 'Utilisateur'}
+              </strong>
+            </p>
+          </div>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const validKeys = ['ADMIN2026', 'ADMIN', '0000', '9999'];
+              if (validKeys.includes(adminUnlockKey.trim().toUpperCase())) {
+                setKeyError(null);
+                onElevateToAdmin?.();
+                onTriggerSmsNotification("Droits Administrateur Principal accordés avec succès.");
+              } else {
+                setKeyError("Clé de sécurité administrateur incorrecte. Entrez le code secret valide (ex: ADMIN2026).");
+              }
+            }}
+            className="w-full flex flex-col gap-3 mt-4"
+          >
+            <div className="flex flex-col gap-1 text-left">
+              <label className="text-xs font-bold text-[#131b2e]">
+                Déverrouiller avec la clé administrateur :
+              </label>
+              <div className="flex items-center bg-[#f2f3ff] rounded-xl px-3 py-2.5 border border-[#eaedff]">
+                <span className="material-symbols-outlined text-[#707a6f] text-[18px] mr-2">key</span>
+                <input
+                  type="password"
+                  value={adminUnlockKey}
+                  onChange={(e) => setAdminUnlockKey(e.target.value)}
+                  placeholder="Clé secrète (ex: ADMIN2026)"
+                  className="w-full bg-transparent text-xs font-bold tracking-widest text-[#131b2e] focus:outline-none"
+                />
+              </div>
+              {keyError && (
+                <p className="text-[11px] font-semibold text-[#ba1a1a] mt-1">{keyError}</p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              className="w-full h-12 rounded-xl bg-[#ba1a1a] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-all hover:bg-[#93000a]"
+            >
+              <span className="material-symbols-outlined text-[18px]">lock_open</span>
+              <span>Déverrouiller l'Espace Superviseur</span>
+            </button>
+          </form>
+
+          <button
+            type="button"
+            onClick={() => onNavigate(currentUser?.role === 'buyer' ? 'marche' : 'solaire')}
+            className="w-full h-11 rounded-xl bg-[#eaedff] text-[#004c22] font-bold text-xs flex items-center justify-center gap-1.5 mt-2 hover:bg-[#dae2fd] transition-colors"
+          >
+            <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+            <span>Retour à mon espace ({currentUser?.role === 'technician' ? 'Technicien' : currentUser?.role === 'buyer' ? 'Marché Vivrier' : 'Solaire IoT'})</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleApproveLot = (id: string, name: string) => {
     setHarvestLots((prev) => prev.filter((lot) => lot.id !== id));
@@ -68,9 +164,14 @@ export const ScreenAdmin: React.FC<ScreenAdminProps> = ({
       <div className="flex flex-col pt-1">
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#855300]">
-              Supervision Nationale CI
-            </span>
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#855300]">
+                Supervision Nationale CI
+              </span>
+              <span className="text-[9px] font-extrabold bg-[#ffdad6] text-[#ba1a1a] px-2 py-0.5 rounded-full border border-[#ffdad6]">
+                Superviseur Principal
+              </span>
+            </div>
             <h2 className="text-xl font-bold text-[#131b2e]">Espace Administration</h2>
           </div>
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#e2e7ff] text-[#004c22] text-xs font-bold shadow-xs">
@@ -79,7 +180,7 @@ export const ScreenAdmin: React.FC<ScreenAdminProps> = ({
           </div>
         </div>
         <p className="text-xs text-[#404940] mt-1 leading-snug">
-          Supervision télémétrique des pompes, transactions Mobile Money et récoltes certifiées.
+          Connecté : <strong>{currentUser?.prenom} {currentUser?.nom}</strong> ({currentUser?.phone || '+225 07 58 42 19 80'}). Pilotage global du parc de pompes, certification des récoltes et arbitrage Mobile Money.
         </p>
       </div>
 

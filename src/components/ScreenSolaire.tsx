@@ -457,17 +457,16 @@ export const ScreenSolaire: React.FC<ScreenSolaireProps> = ({
           </button>
         </div>
 
-        {/* Emergency Technician Call Button */}
+        {/* Emergency Advisor & Technician Direct Call Button */}
         <a
-          href="tel:1301"
-          onClick={(e) => {
-            e.preventDefault();
-            onTriggerSmsNotification("Appel d'urgence Technicien NAFAMA initié. Numéro vert 1301.");
+          href="tel:+2256464843912"
+          onClick={() => {
+            onTriggerSmsNotification("Appel direct du Conseiller Agricole NAFAMA au +225 64 64 84 39 12...");
           }}
           className="w-full min-h-[52px] bg-[#004c22] text-white rounded-xl flex items-center justify-center gap-2 px-4 py-3 shadow-md active:scale-98 transition-all hover:bg-[#166534]"
         >
           <span className="material-symbols-outlined text-[22px] text-[#ffddb8]">support_agent</span>
-          <span className="text-sm font-bold">Assistance Technicien NAFAMA 24/7</span>
+          <span className="text-sm font-bold">Appeler mon Conseiller (+225 64 64 84 39 12)</span>
         </a>
       </section>
     </div>
